@@ -24,17 +24,25 @@ interface GraphQLRequestPayload {
   variables?: Record<string, string>
 }
 
+type ExecuteOperationProps = {
+  page: Page
+  endpoint?: string
+  payload: GraphQLRequestPayload
+  method?: 'GET' | 'POST'
+}
+
 /**
  * Executes a GraphQL operation in the given Puppeteer context.
  */
-export const executeOperation = async (
-  page: Page,
-  payload: GraphQLRequestPayload,
-  method: 'GET' | 'POST' = 'POST',
-) => {
+export const executeOperation = async ({
+  page,
+  endpoint = HOSTNAME,
+  payload,
+  method = 'POST',
+}: ExecuteOperationProps) => {
   const { query, variables } = payload
 
-  const url = new URL(HOSTNAME)
+  const url = new URL(endpoint)
 
   if (method === 'GET') {
     url.searchParams.set('query', query)
@@ -45,7 +53,6 @@ export const executeOperation = async (
   }
 
   const urlString = url.toString()
-
   page.evaluate(
     (url, method, query, variables) => {
       fetch(

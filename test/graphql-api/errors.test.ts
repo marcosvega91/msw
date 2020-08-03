@@ -19,14 +19,17 @@ describe('GraphQL: Errors', () => {
     let body: Record<string, any>
 
     beforeAll(async () => {
-      res = await executeOperation(test.page, {
-        query: `
+      res = await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
           query Login {
             user {
               id
             }
           }
         `,
+        },
       })
       body = await res.json()
     })

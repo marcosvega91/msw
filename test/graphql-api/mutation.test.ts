@@ -14,14 +14,17 @@ describe('GraphQL: Mutation', () => {
   })
 
   it('should mock the mutation response', async () => {
-    const res = await executeOperation(test.page, {
-      query: `
-        mutation Logout {
-          logout {
-            userSession
+    const res = await executeOperation({
+      page: test.page,
+      payload: {
+        query: `
+          mutation Logout {
+            logout {
+              userSession
+            }
           }
-        }
-      `,
+        `,
+      },
     })
     const headers = res.headers()
     const body = await res.json()

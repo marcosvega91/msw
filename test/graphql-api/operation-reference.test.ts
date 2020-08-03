@@ -20,10 +20,13 @@ test('allows referencing the request body in the request handler', async () => {
     }
   `
 
-  const res = await executeOperation(runtime.page, {
-    query: GET_USER_QUERY,
-    variables: {
-      id: 'abc-123',
+  const res = await executeOperation({
+    page: runtime.page,
+    payload: {
+      query: GET_USER_QUERY,
+      variables: {
+        id: 'abc-123',
+      },
     },
   })
   const headers = res.headers()
@@ -48,11 +51,14 @@ test('allows referencing the request body in the request handler', async () => {
     }
   `
 
-  const res = await executeOperation(runtime.page, {
-    query: LOGIN_MUTATION,
-    variables: {
-      username: 'john',
-      password: 'super-secret',
+  const res = await executeOperation({
+    page: runtime.page,
+    payload: {
+      query: LOGIN_MUTATION,
+      variables: {
+        username: 'john',
+        password: 'super-secret',
+      },
     },
   })
   const headers = res.headers()

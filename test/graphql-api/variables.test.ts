@@ -19,8 +19,10 @@ describe('GraphQL: Variables', () => {
     let body: Record<string, any>
 
     beforeAll(async () => {
-      res = await executeOperation(test.page, {
-        query: `
+      res = await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
           query GetGithubUser($username: String!) {
             user(login: $username) {
               firstName
@@ -28,8 +30,9 @@ describe('GraphQL: Variables', () => {
             }
           }
         `,
-        variables: {
-          username: 'octocat',
+          variables: {
+            username: 'octocat',
+          },
         },
       })
       body = await res.json()
@@ -56,16 +59,19 @@ describe('GraphQL: Variables', () => {
     let body: Record<string, any>
 
     beforeAll(async () => {
-      res = await executeOperation(test.page, {
-        query: `
+      res = await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
           mutation DeletePost($postId: String!) {
             deletePost(id: $postId) {
               postId
             }
           }
         `,
-        variables: {
-          postId: 'abc-123',
+          variables: {
+            postId: 'abc-123',
+          },
         },
       })
       body = await res.json()
@@ -91,14 +97,17 @@ describe('GraphQL: Variables', () => {
     let body: Record<string, any>
 
     beforeAll(async () => {
-      res = await executeOperation(test.page, {
-        query: `
+      res = await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
             query GetActiveUser {
               user {
                 id
               }
             }
           `,
+        },
       })
       body = await res.json()
     })

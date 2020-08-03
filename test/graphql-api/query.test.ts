@@ -7,20 +7,20 @@ test('mocks a GraphQL query issued with a GET request', async () => {
     path.resolve(__dirname, 'query.mocks.ts'),
   )
 
-  const res = await executeOperation(
-    runtime.page,
-    {
+  const res = await executeOperation({
+    page: runtime.page,
+    payload: {
       query: `
-      query GetUserDetail {
-        user {
-          firstName
-          lastName
+        query GetUserDetail {
+          user {
+            firstName
+            lastName
+          }
         }
-      }
-    `,
+      `,
     },
-    'GET',
-  )
+    method: 'GET',
+  })
 
   const headers = res.headers()
   const body = await res.json()
@@ -44,8 +44,10 @@ test('mocks a GraphQL query issued with a POST request', async () => {
     path.resolve(__dirname, 'query.mocks.ts'),
   )
 
-  const res = await executeOperation(runtime.page, {
-    query: `
+  const res = await executeOperation({
+    page: runtime.page,
+    payload: {
+      query: `
       query GetUserDetail {
         user {
           firstName
@@ -53,6 +55,7 @@ test('mocks a GraphQL query issued with a POST request', async () => {
         }
       }
     `,
+    },
   })
   const headers = res.headers()
   const body = await res.json()

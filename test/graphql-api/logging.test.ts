@@ -20,15 +20,18 @@ describe('GraphQL: Logging', () => {
     beforeAll(async () => {
       const { messages } = captureConsole(test.page, filterLibraryLogs)
 
-      await executeOperation(test.page, {
-        query: `
-          query GetUserDetail {
-            user {
-              firstName
-              lastName
+      await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
+            query GetUserDetail {
+              user {
+                firstName
+                lastName
+              }
             }
-          }
-        `,
+          `,
+        },
       })
 
       requestLog = messages.startGroupCollapsed.find((text) => {
@@ -57,14 +60,17 @@ describe('GraphQL: Logging', () => {
     beforeAll(async () => {
       const { messages } = captureConsole(test.page, filterLibraryLogs)
 
-      await executeOperation(test.page, {
-        query: `
+      await executeOperation({
+        page: test.page,
+        payload: {
+          query: `
           mutation Login {
             user {
               id
             }
           }
         `,
+        },
       })
 
       requestLog = messages.startGroupCollapsed.find((text) => {
