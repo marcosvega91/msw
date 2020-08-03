@@ -1,4 +1,6 @@
 import { OperationTypeNode, OperationDefinitionNode, parse } from 'graphql'
+import { getCleanUrl } from 'node-request-interceptor/lib/utils/getCleanUrl'
+import { match } from 'node-match-path'
 import {
   RequestHandler,
   MockedRequest,
@@ -11,6 +13,9 @@ import { delay } from './context/delay'
 import { fetch } from './context/fetch'
 import { data, DataContext } from './context/data'
 import { errors } from './context/errors'
+import { Mask } from './setupWorker/glossary'
+import { resolveMask } from './utils/resolveMask'
+import { resolveRelativeUrl } from './utils/resolveRelativeUrl'
 
 /* Logging */
 import { prepareRequest } from './utils/logger/prepareRequest'
@@ -88,7 +93,7 @@ export function parseQuery(
   }
 }
 
-const createGraphQLHandler = (operationType: OperationTypeNode) => {
+const createGraphQLHandler = (mask: Mask, operationType: OperationTypeNode) => {
   return <QueryType, VariablesType = Record<string, any>>(
     expectedOperation: GraphQLRequestHandlerSelector,
     resolver: GraphQLResponseResolver<QueryType, VariablesType>,
@@ -97,6 +102,13 @@ const createGraphQLHandler = (operationType: OperationTypeNode) => {
     GraphQLMockedContext<QueryType>,
     GraphQLRequestParsedResult<VariablesType>
   > => {
+    const resolvedMask = resolveMask(mask)
+    const cleanMask =
+      resolvedMask instanceof URL
+        ? getCleanUrl(resolvedMask)
+        : resolvedMask instanceof RegExp
+        ? resolvedMask
+        : resolveRelativeUrl(resolvedMask)
     return {
       resolver,
 
@@ -158,12 +170,15 @@ const createGraphQLHandler = (operationType: OperationTypeNode) => {
           return false
         }
 
+        const cleanUrl = getCleanUrl(req.url)
         const isMatchingOperation =
           expectedOperation instanceof RegExp
             ? expectedOperation.test(parsed.operationName)
             : expectedOperation === parsed.operationName
 
-        return isMatchingOperation
+        const urlMatch = match(cleanMask, cleanUrl)
+
+        return urlMatch.matches && isMatchingOperation
       },
 
       defineContext() {
@@ -197,6 +212,12 @@ const createGraphQLHandler = (operationType: OperationTypeNode) => {
 }
 
 export const graphql = {
-  query: createGraphQLHandler('query'),
-  mutation: createGraphQLHandler('mutation'),
+  link: (mask: Mask) => {
+    return {
+      query: createGraphQLHandler(mask, 'query'),
+      mutation: createGraphQLHandler(mask, 'mutation'),
+    }
+  },
+  query: createGraphQLHandler('*', 'query'),
+  mutation: createGraphQLHandler('*', 'mutation'),
 }
